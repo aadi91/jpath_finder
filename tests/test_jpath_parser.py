@@ -17,7 +17,8 @@ from tests.parser_original_cases import (
 )
 from tests.parser_test_cases import PATH_CASES, STR_REPR_CASES
 from jpath_finder.jpath_errors import JPathNodeError, JPathError
-from jpath_finder.jpath_parser import BasicLogger, JsonPathParser, StaticParser, find, parse
+from jpath_finder.jpath_parser import BasicLogger, JsonPathParser, StaticParser, find, parse, find_with_path
+from jpath_finder.jpath_nodes import Datum
 
 
 class TestJsonPathParser(TestCase):
@@ -25,11 +26,11 @@ class TestJsonPathParser(TestCase):
         self._parser = JsonPathParser(debug=False)
         self._abs_path = os.path.abspath("tests/json_for_test.json")
         self._file = open(self._abs_path, "r")
-        self._data = json.load(self._file)
+        self._data = Datum(json.load(self._file))
 
     def find(self, path):
         parsed = self._parser.parse(path)
-        return parsed.find(self._data)
+        return [v.value for v in parsed.find(self._data)]
 
     def test_parse(self):
         self.assertEqual(self.find("$.name"), ["data"])
@@ -274,3 +275,13 @@ class TestMethods(TestCase):
         logger = MagicMock()
         self.assertEqual(find("[3]", [], logger=logger), [])
         logger.debug.assert_not_called()
+
+
+# class TestFindWithPath(TestCase):
+#     def test_full_path_root(self):
+#         self.assertEqual(find_with_path("$", {}), [("$", {})])
+#         self.assertEqual(find_with_path("@", {}), [("@", {})])
+#         self.assertEqual(find_with_path("$", {"value": 2}), [("$", {"value": 2})])
+#
+#     def test_full_path_child_field(self):
+#         self.assertEqual(find_with_path("$.value", {"value": 2}), [("$.value", 2)])

@@ -32,6 +32,24 @@ OPERATOR_MAP = {
 }
 
 
+class Datum:
+    EMPTY_STR = ""
+
+    def __init__(self, value, path=None):
+        self.value = value
+        self.path = path if path else []
+
+    def __str__(self):
+        return self.EMPTY_STR.join([str(v) for v in self.path])
+
+    def __call__(self, path):
+        self.path.append(path)
+        return self
+
+    def new(self, value, path):
+        return Datum(value, self.path + [path])
+
+
 class ASTBase(object):
     STR = ""
     REPR = ""
@@ -51,6 +69,12 @@ class ASTBase(object):
     def find(data):
         """Abstract method for all AST classes."""
         pass
+
+    # @staticmethod
+    # @abstractmethod
+    # def find_with_path(data):
+    #     """Abstract method for all AST classes."""
+    #     pass
 
     def __eq__(self, o):
         return isinstance(o, type(self))
@@ -85,14 +109,18 @@ class Root(Leaf):
 
     @staticmethod
     def find(data):
-        return [data]
+        return [data(Root)]
 
 
-class This(Root):
+class This(Leaf):
     """The Node referring to the current object or "@"."""
 
     STR = "@"
     REPR = "This()"
+
+    @staticmethod
+    def find(data):
+        return [data(This)]
 
 
 class Child(Node):
@@ -100,9 +128,16 @@ class Child(Node):
 
     STR = "{left}.{right}"
     REPR = "Child({left!r}, {right!r})"
+    DOT = "."
 
     def find(self, data):
-        return [v for d in self.left.find(data) for v in self.right.find(d)]
+        # return [v for d in self.left.find(data) for v in self.right.find(d)]
+        res = []
+        for d in self.left.find(data):
+            d(self.DOT)
+            for v in self.right.find(d):
+                res.append(v)
+        return res
 
 
 class Where(Child):
@@ -120,6 +155,7 @@ class Descendants(Child):
 
     STR = "{left}..{right}"
     REPR = "Descendants({left!r}, {right!r})"
+    D_DOT = ".."
 
     def find(self, data):
         return [v for m in self.left.find(data) for v in Recursive.find(m, self.right)]
@@ -144,10 +180,11 @@ class Fields(Leaf):
     def __init__(self, *fields):
         self.fields = fields
 
-    def find(self, value):
+    def find(self, data):
+        value = data.value
         if hasattr(value, self.KEYS):
             keys = list(value)
-            return [value[field] for field in self.fields if field in keys]
+            return [data.new(value[field], Fields(field)) for field in self.fields if field in keys]
         raise JPathNodeError(self, value)
 
     def __str__(self):
@@ -171,8 +208,9 @@ class Index(Leaf):
 
     def find(self, data):
         try:
-            if hasattr(data, self.D_UNDER_GETITEM):
-                return [data[self.index]]
+            value = data.value
+            if hasattr(value, self.D_UNDER_GETITEM):
+                return [data.new(value[self.index], Index(self.index))]
         except (IndexError, KeyError):
             raise JPathIndexError(self, data)
         raise JPathNodeError(self, data)
@@ -188,10 +226,11 @@ class AllIndex(Leaf):
     REPR = "AllIndex()"
 
     def find(self, data):
-        if hasattr(data, self.KEYS):
-            return [v for _, v in data.items()]
+        value = data.value
+        if hasattr(value, self.KEYS):
+            return [data.new(v, Index(k)) for k, v in value.items()]
         if hasattr(data, self.D_UNDER_ITER):
-            return data
+            return [data.new(v, Index(i)) for i, v in enumerate(value)]
         raise JPathIndexError(self, data)
 
 
@@ -202,8 +241,9 @@ class Len(Leaf):
     REPR = "Len()"
 
     def find(self, data):
-        if hasattr(data, self.D_UNDER_LEN):
-            return [len(data)]
+        value = data.value
+        if hasattr(value, self.D_UNDER_LEN):
+            return [data.new(len(data), self)]
         raise JPathNodeError(self, data)
 
 
@@ -214,8 +254,9 @@ class Sorted(Leaf):
     REPR = "Sorted()"
 
     def find(self, data):
-        if hasattr(data, self.D_UNDER_ITER):
-            return [sorted(data)]
+        value = data.value
+        if hasattr(value, self.D_UNDER_ITER):
+            return [data.new(sorted(data), self)]
         raise JPathNodeError(self, data)
 
 
@@ -227,8 +268,9 @@ class Sum(Leaf):
 
     def find(self, data):
         try:
-            if hasattr(data, self.D_UNDER_ITER):
-                return [sum(data)]
+            value = data.value
+            if hasattr(value, self.D_UNDER_ITER):
+                return [data.new(sum(data), self)]
         except TypeError:
             pass
         raise JPathNodeError(self, data)
@@ -242,8 +284,9 @@ class Avg(Leaf):
 
     def find(self, data):
         try:
-            if hasattr(data, self.D_UNDER_ITER) and hasattr(data, self.D_UNDER_LEN):
-                return [sum(data) / len(data)]
+            value = data.value
+            if hasattr(value, self.D_UNDER_ITER) and hasattr(data, self.D_UNDER_LEN):
+                return [data.new(sum(data) / len(data), self)]
         except (TypeError, ZeroDivisionError):
             pass
         raise JPathNodeError(self, data)
@@ -261,13 +304,14 @@ class Slice(Leaf):
         self.step = step
 
     def find(self, data):
-        if hasattr(data, "keys"):
-            return self.find([data])
-        if hasattr(data, self.D_UNDER_GETITEM):
-            res = data[self.start : self.end : self.step]
+        value = data.value
+        if hasattr(value, "keys"):
+            return self.find(data.new([value], data.path.copy()))
+        if hasattr(value, self.D_UNDER_GETITEM):
+            res = value[self.start : self.end : self.step]
             if hasattr(res, self.D_MOD):
-                return [res]
-            return res
+                return [data.new(res, Index(0))]
+            return [data.new(v, Index(i)) for i, v in enumerate(res)]
         raise JPathNodeError(self, data)
 
     def __eq__(self, o):
@@ -305,10 +349,11 @@ class Filter(Leaf):
         self.expr = expression
 
     def find(self, data):
+        value = data.value
         if not self.expr:
-            return [data]
+            return [data.new(v, Index(i)) for i, v in enumerate(value)]
         if hasattr(data, self.D_UNDER_ITER):
-            return [v for v in data if self.expr.find(v)]
+            return [data.new(v, Index(i)) for i, v in enumerate(data) if self.expr.find(v)]
         raise JPathNodeError(self, data)
 
 
@@ -348,7 +393,7 @@ class Expression(Leaf):
         found = self.target.find(data)
         if op is None:
             return True if found else False
-        return any([op(v, self.value) for v in found])
+        return any([op(v.value, self.value) for v in found])
 
     def __eq__(self, o):
         return all(

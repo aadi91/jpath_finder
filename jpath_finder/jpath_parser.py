@@ -19,6 +19,7 @@ from jpath_finder.jpath_nodes import (
     Index,
     NodesFactory,
     Slice,
+    Datum
 )
 
 
@@ -268,6 +269,25 @@ def find(path, data, logger=BasicLogger, debug=False):
     try:
         parsed = parse(path)
         return parsed.find(data)
+    except JPathError as e:
+        if debug:
+            message = str(e)
+            logger.debug(message)
+        return []
+
+
+def find_with_path(path, data, logger=BasicLogger, debug=False):
+    """
+    :param path: The string JsonPath to be parsed.
+    :param data: The json data generally a dictionary.
+    :param logger: Logger class with a debug method, like logger.debug(error_message).
+    :param debug: True if the logger's debug method will be called. default False.
+    :return: A list of tuples with the results found like [(value_1, path_1), (value_2, path_2)].
+    """
+    try:
+        parsed = parse(path)
+        result = parsed.find_with_path(Datum(data))
+        return [(datum.full_path, datum.value) for datum in result]
     except JPathError as e:
         if debug:
             message = str(e)
