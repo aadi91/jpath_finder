@@ -83,6 +83,10 @@ class TestLeaf(TestCase):
             repr(Or(Fields("name"), Fields("id"))), "Or(Fields('name'),Fields('id'))"
         )
 
+    def test_execute(self):
+        result = self._leaf.execute("show me", lambda x: x[0], JPathIndexError("ab", "cd"))
+        self.assertEqual(result, "s")
+
 
 class TestNode(TestCase):
     def setUp(self):
@@ -157,6 +161,13 @@ class TestChild(TestCase):
         self.assertEqual(find(child, {"value": 23}), [23])
         self.assertEqual(find(child, dict()), [])
         self.assertEqual(find(child, {"other": 23}), [])
+
+    # def test_find_with_exception(self):
+    #     child = Child(Root(), Fields("value"))
+    #     cases = [dict(), {"other": 23}]
+    #     for case in cases:
+    #         with self.assertRaises(JPathNodeError):
+    #             find(child, case)
 
 
 class TestWhere(TestCase):

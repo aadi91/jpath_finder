@@ -65,6 +65,22 @@ class Leaf(ASTBase):
     D_MOD = "__mod__"
     KEYS = "keys"
 
+    @staticmethod
+    def execute(value, callback, exception=None):
+        try:
+            return callback(value)
+        except Exception:
+            raise exception
+
+    @staticmethod
+    def cb_get_attr(data_key):
+        data, key = data_key
+        return data[key]
+
+    @staticmethod
+    def cb_avg(data):
+        return sum(data) / len(data)
+
 
 class Node(ASTBase):
     """The Node base class in the AST"""
@@ -145,6 +161,8 @@ class Fields(Leaf):
         self.fields = fields
 
     def find(self, value):
+        # keys = list(value)
+        # return [self.execute((value, field), self.cb_get_attr, JPathNodeError(self, value)) for field in self.fields]
         if hasattr(value, self.KEYS):
             keys = list(value)
             return [value[field] for field in self.fields if field in keys]
@@ -170,12 +188,13 @@ class Index(Leaf):
         self.index = index
 
     def find(self, data):
-        try:
-            if hasattr(data, self.D_UNDER_GETITEM):
-                return [data[self.index]]
-        except (IndexError, KeyError):
-            raise JPathIndexError(self, data)
-        raise JPathNodeError(self, data)
+        return [self.execute((data, self.index), self.cb_get_attr, JPathIndexError(self, data))]
+        # try:
+        #     if hasattr(data, self.D_UNDER_GETITEM):
+        #         return [data[self.index]]
+        # except (IndexError, KeyError):
+        #     raise JPathIndexError(self, data)
+        # raise JPathNodeError(self, data)
 
     def __eq__(self, o):
         return isinstance(o, Index) and self.index == o.index
@@ -202,9 +221,10 @@ class Len(Leaf):
     REPR = "Len()"
 
     def find(self, data):
-        if hasattr(data, self.D_UNDER_LEN):
-            return [len(data)]
-        raise JPathNodeError(self, data)
+        return [self.execute(data, len, JPathNodeError(self, data))]
+        # if hasattr(data, self.D_UNDER_LEN):
+        #     return [len(data)]
+        # raise JPathNodeError(self, data)
 
 
 class Sorted(Leaf):
@@ -214,9 +234,10 @@ class Sorted(Leaf):
     REPR = "Sorted()"
 
     def find(self, data):
-        if hasattr(data, self.D_UNDER_ITER):
-            return [sorted(data)]
-        raise JPathNodeError(self, data)
+        return [self.execute(data, sorted, JPathNodeError(self, data))]
+        # if hasattr(data, self.D_UNDER_ITER):
+        #     return [sorted(data)]
+        # raise JPathNodeError(self, data)
 
 
 class Sum(Leaf):
@@ -226,12 +247,13 @@ class Sum(Leaf):
     REPR = "Sum()"
 
     def find(self, data):
-        try:
-            if hasattr(data, self.D_UNDER_ITER):
-                return [sum(data)]
-        except TypeError:
-            pass
-        raise JPathNodeError(self, data)
+        return [self.execute(data, sum, JPathNodeError(self, data))]
+        # try:
+        #     if hasattr(data, self.D_UNDER_ITER):
+        #         return [sum(data)]
+        # except TypeError:
+        #     pass
+        # raise JPathNodeError(self, data)
 
 
 class Avg(Leaf):
@@ -241,12 +263,13 @@ class Avg(Leaf):
     REPR = "Avg()"
 
     def find(self, data):
-        try:
-            if hasattr(data, self.D_UNDER_ITER) and hasattr(data, self.D_UNDER_LEN):
-                return [sum(data) / len(data)]
-        except (TypeError, ZeroDivisionError):
-            pass
-        raise JPathNodeError(self, data)
+        return [self.execute(data, self.cb_avg, JPathNodeError(self, data))]
+        # try:
+        #     if hasattr(data, self.D_UNDER_ITER) and hasattr(data, self.D_UNDER_LEN):
+        #         return [sum(data) / len(data)]
+        # except (TypeError, ZeroDivisionError):
+        #     pass
+        # raise JPathNodeError(self, data)
 
 
 class Slice(Leaf):
