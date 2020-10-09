@@ -45,13 +45,13 @@ class JsonPathParser(object):
     precedence = [
         ("left", "+", "-"),
         ("left", "*", "/"),
-        ("left", ","),
-        ("left", "STRING", "DOUBLEDOT"),
+        # ("left", ),
         ("left", "."),
-        ("left", "|"),
-        ("left", "&"),
+        ("left", "&", "|"),
+        ("left", ","),
+        ("left", "DOUBLEDOT"),
         ("left", "WHERE"),
-        ("nonassoc", "ID"),
+        ("nonassoc", "STRING", "ID"),
     ]
 
     @staticmethod
@@ -61,24 +61,30 @@ class JsonPathParser(object):
 
     @staticmethod
     def p_child(p):
-        """json_path : json_path '.' json_path
-                     | json_path '[' index ']'"""
+        """json_path : json_path '.' json_path"""
         p[0] = Child(p[1], p[3])
+        print("1")
+
+    @staticmethod
+    def p_child_index(p):
+        """json_path : json_path json_path """
+        p[0] = Child(p[1], p[2])
+        print("2")
 
     @staticmethod
     def p_json_path_bin_op(p):
         """json_path : json_path binary_op json_path"""
         p[0] = BINARY_OP_MAP[p[2]](p[1], p[3])
 
-    @staticmethod
-    def p_json_path_index(p):
-        """json_path : '[' index ']'"""
-        p[0] = p[2]
+    # @staticmethod
+    # def p_json_path_index(p):
+    #     """json_path : index"""
+    #     p[0] = p[2]
 
     @staticmethod
     def p_index_expressions(p):
-        """index : '?' expressions"""
-        p[0] = Filter(p[2])
+        """json_path : '[' '?' expressions ']'"""
+        p[0] = Filter(p[3])
 
     @staticmethod
     def p_expression_boolean_operator(p):
@@ -110,28 +116,6 @@ class JsonPathParser(object):
         p[0] = NAMED_OPERATOR_MAP[p[1]]()
 
     @staticmethod
-    def p_json_path_mat_expression(p):
-        """json_path : INTEGER operator INTEGER
-                     | STRING operator INTEGER
-                     | INTEGER operator STRING
-                     | STRING operator STRING
-                     | STRING operator json_path
-                     | json_path operator STRING
-                     | INTEGER operator json_path
-                     | json_path operator json_path
-                     | json_path operator INTEGER"""
-        p[0] = NodesFactory.mat_operator(p[1], p[3], p[2])
-
-    @staticmethod
-    def p_operator(p):
-        """operator : '+'
-                    | '-'
-                    | '*'
-                    | '/'
-        """
-        p[0] = p[1]
-
-    @staticmethod
     def p_json_path_parens(p):
         """json_path : '(' json_path ')'"""
         p[0] = p[2]
@@ -139,12 +123,13 @@ class JsonPathParser(object):
     @staticmethod
     def p_json_path_fields(p):
         """json_path : fields"""
+        print("3")
         p[0] = Fields(*p[1])
 
     @staticmethod
     def p_index_fields(p):
-        """index : fields"""
-        p[0] = Fields(*p[1])
+        """json_path : '[' fields ']'"""
+        p[0] = Fields(*p[2])
 
     @staticmethod
     def p_fields_id(p):
@@ -158,22 +143,51 @@ class JsonPathParser(object):
 
     @staticmethod
     def p_idx(p):
-        """index : INTEGER"""
-        p[0] = Index(p[1])
+        """json_path : '[' INTEGER ']'"""
+        p[0] = Index(p[2])
 
     @staticmethod
-    def p_slice_any(p):
-        """index : '*'"""
+    def p_all_index(p):
+        """json_path : '[' '*' ']'"""
         p[0] = AllIndex()
+    #
+    # @staticmethod
+    # def p_all_index_dict(p):
+    #     """index : '[' '*' ']'"""
 
     @staticmethod
     def p_slice(p):
-        """index : int_empty ':' int_empty ':' int_empty
-                 | int_empty ':' int_empty"""
-        if len(p) == 6:
-            p[0] = Slice(start=p[1], end=p[3], step=p[5])
+        """json_path : '[' int_empty ':' int_empty ':' int_empty ']'
+                     | '[' int_empty ':' int_empty ']'"""
+        if len(p) == 8:
+            p[0] = Slice(start=p[2], end=p[4], step=p[6])
         else:
-            p[0] = Slice(start=p[1], end=p[3])
+            p[0] = Slice(start=p[2], end=p[4])
+
+    @staticmethod
+    def p_json_path_mat_expression(p):
+        # """json_path : INTEGER operator INTEGER
+        #              | STRING operator INTEGER
+        #              | INTEGER operator STRING
+        #              | STRING operator STRING
+        #              | STRING operator json_path
+        #              | json_path operator STRING
+        #              | INTEGER operator json_path
+        #              | json_path operator json_path
+        #              | json_path operator INTEGER"""
+        """json_path : jp_object operator json_path
+                     | json_path operator jp_object
+                     | jp_object operator jp_object"""
+        p[0] = NodesFactory.mat_operator(p[1], p[3], p[2])
+
+    @staticmethod
+    def p_operator(p):
+        """operator : '+'
+                    | '-'
+                    | '*'
+                    | '/'
+        """
+        p[0] = p[1]
 
     @staticmethod
     def p_int_empty(p):

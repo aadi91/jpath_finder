@@ -32,6 +32,48 @@ OPERATOR_MAP = {
 }
 
 
+class CBE(object):
+    """
+    Callback executor this class execute its callbacks.
+    """
+
+    @staticmethod
+    def execute(callback, exception, *args):
+        try:
+            return callback(*args)
+        except Exception:
+            raise exception
+
+    @staticmethod
+    def get_index(*args):
+        index, data = args
+        return data[index]
+
+    @staticmethod
+    def get_multiple_index(indexes, data):
+        res = []
+        for index in indexes:
+            try:
+                res.append(CBE.get_index(index, data))
+            except Exception:
+                pass
+        return res
+
+    @staticmethod
+    def get_attr(*args):
+        attr, data = args
+        return getattr(data, attr)()
+
+    @staticmethod
+    def cb_filter(*args):
+        lambda_, data = args
+        return list(filter(lambda_, data))
+
+    @staticmethod
+    def cb_avg(data):
+        return sum(data) / len(data)
+
+
 class ASTBase(object):
     STR = ""
     REPR = ""
@@ -58,28 +100,7 @@ class ASTBase(object):
 
 class Leaf(ASTBase):
     """The Leaf base class in the AST."""
-
-    D_UNDER_LEN = "__len__"
-    D_UNDER_ITER = "__iter__"
-    D_UNDER_GETITEM = "__getitem__"
     D_MOD = "__mod__"
-    KEYS = "keys"
-
-    @staticmethod
-    def execute(value, callback, exception=None):
-        try:
-            return callback(value)
-        except Exception:
-            raise exception
-
-    @staticmethod
-    def cb_get_attr(data_key):
-        data, key = data_key
-        return data[key]
-
-    @staticmethod
-    def cb_avg(data):
-        return sum(data) / len(data)
 
 
 class Node(ASTBase):
@@ -161,12 +182,7 @@ class Fields(Leaf):
         self.fields = fields
 
     def find(self, value):
-        # keys = list(value)
-        # return [self.execute((value, field), self.cb_get_attr, JPathNodeError(self, value)) for field in self.fields]
-        if hasattr(value, self.KEYS):
-            keys = list(value)
-            return [value[field] for field in self.fields if field in keys]
-        raise JPathNodeError(self, value)
+        return CBE.get_multiple_index(self.fields, value)
 
     def __str__(self):
         return self.STR.format(",".join(map(str, self.fields)))
@@ -188,13 +204,7 @@ class Index(Leaf):
         self.index = index
 
     def find(self, data):
-        return [self.execute((data, self.index), self.cb_get_attr, JPathIndexError(self, data))]
-        # try:
-        #     if hasattr(data, self.D_UNDER_GETITEM):
-        #         return [data[self.index]]
-        # except (IndexError, KeyError):
-        #     raise JPathIndexError(self, data)
-        # raise JPathNodeError(self, data)
+        return [CBE.execute(CBE.get_index, JPathIndexError(self, data), self.index, data)]
 
     def __eq__(self, o):
         return isinstance(o, Index) and self.index == o.index
@@ -207,11 +217,7 @@ class AllIndex(Leaf):
     REPR = "AllIndex()"
 
     def find(self, data):
-        if hasattr(data, self.KEYS):
-            return [v for _, v in data.items()]
-        if hasattr(data, self.D_UNDER_ITER):
-            return data
-        raise JPathIndexError(self, data)
+        return CBE.execute(CBE.get_index, JPathIndexError(self, data), slice(None, None, None), data)
 
 
 class Len(Leaf):
@@ -221,10 +227,7 @@ class Len(Leaf):
     REPR = "Len()"
 
     def find(self, data):
-        return [self.execute(data, len, JPathNodeError(self, data))]
-        # if hasattr(data, self.D_UNDER_LEN):
-        #     return [len(data)]
-        # raise JPathNodeError(self, data)
+        return [CBE.execute(len, JPathNodeError(self, data), data)]
 
 
 class Sorted(Leaf):
@@ -234,10 +237,7 @@ class Sorted(Leaf):
     REPR = "Sorted()"
 
     def find(self, data):
-        return [self.execute(data, sorted, JPathNodeError(self, data))]
-        # if hasattr(data, self.D_UNDER_ITER):
-        #     return [sorted(data)]
-        # raise JPathNodeError(self, data)
+        return [CBE.execute(sorted, JPathNodeError(self, data), data)]
 
 
 class Sum(Leaf):
@@ -247,13 +247,7 @@ class Sum(Leaf):
     REPR = "Sum()"
 
     def find(self, data):
-        return [self.execute(data, sum, JPathNodeError(self, data))]
-        # try:
-        #     if hasattr(data, self.D_UNDER_ITER):
-        #         return [sum(data)]
-        # except TypeError:
-        #     pass
-        # raise JPathNodeError(self, data)
+        return [CBE.execute(sum, JPathNodeError(self, data), data)]
 
 
 class Avg(Leaf):
@@ -263,13 +257,26 @@ class Avg(Leaf):
     REPR = "Avg()"
 
     def find(self, data):
-        return [self.execute(data, self.cb_avg, JPathNodeError(self, data))]
-        # try:
-        #     if hasattr(data, self.D_UNDER_ITER) and hasattr(data, self.D_UNDER_LEN):
-        #         return [sum(data) / len(data)]
-        # except (TypeError, ZeroDivisionError):
-        #     pass
-        # raise JPathNodeError(self, data)
+        return [CBE.execute(CBE.cb_avg, JPathNodeError(self, data), data)]
+
+
+class Keys(Leaf):
+    """Node that return the keys of the object. Syntax '`keys`'"""
+
+    STR = "`keys`"
+    REPR = "Keys()"
+    NAME = "keys"
+
+    def find(self, data):
+        return CBE.execute(CBE.get_attr, JPathNodeError(self, data), self.NAME, data)
+
+
+class Values(Keys):
+    """Node that return the values of the object. Syntax '`values`'"""
+
+    STR = "`values`"
+    REPR = "Values()"
+    NAME = "values"
 
 
 class Slice(Leaf):
@@ -284,14 +291,8 @@ class Slice(Leaf):
         self.step = step
 
     def find(self, data):
-        if hasattr(data, "keys"):
-            return self.find([data])
-        if hasattr(data, self.D_UNDER_GETITEM):
-            res = data[self.start : self.end : self.step]
-            if hasattr(res, self.D_MOD):
-                return [res]
-            return res
-        raise JPathNodeError(self, data)
+        res = CBE.execute(CBE.get_index, JPathNodeError(self, data), slice(self.start, self.end, self.step), data)
+        return [res] if hasattr(res, self.D_MOD) else res
 
     def __eq__(self, o):
         return all(
@@ -330,9 +331,7 @@ class Filter(Leaf):
     def find(self, data):
         if not self.expr:
             return [data]
-        if hasattr(data, self.D_UNDER_ITER):
-            return [v for v in data if self.expr.find(v)]
-        raise JPathNodeError(self, data)
+        return CBE.execute(CBE.cb_filter, JPathNodeError(self, data), lambda v: self.expr.find(v), data)
 
 
 class And(Node):
@@ -486,7 +485,7 @@ class NodesFactory(object):
 
 BINARY_OP_MAP = {"..": Descendants, "where": Where, "|": Union}
 
-NAMED_OPERATOR_MAP = {"sum": Sum, "avg": Avg, "len": Len, "sorted": Sorted}
+NAMED_OPERATOR_MAP = {"sum": Sum, "avg": Avg, "len": Len, "sorted": Sorted, "keys": Keys, "values": Values}
 
 BOOLEAN_OPERATOR_MAP = {"|": Or, "&": And}
 
