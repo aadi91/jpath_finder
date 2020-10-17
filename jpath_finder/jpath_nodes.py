@@ -50,6 +50,16 @@ class CBE(object):
         return data[index]
 
     @staticmethod
+    def get_all(*args):
+        index, data = args
+        return list(data)[index]
+
+    @staticmethod
+    def get_sliced(*args):
+        index, data = args
+        return data[index]
+
+    @staticmethod
     def get_multiple_index(indexes, data):
         res = []
         for index in indexes:
@@ -217,7 +227,7 @@ class AllIndex(Leaf):
     REPR = "AllIndex()"
 
     def find(self, data):
-        return CBE.execute(CBE.get_index, JPathIndexError(self, data), slice(None, None, None), data)
+        return CBE.execute(CBE.get_all, JPathIndexError(self, data), slice(None, None, None), data)
 
 
 class Len(Leaf):
@@ -291,7 +301,7 @@ class Slice(Leaf):
         self.step = step
 
     def find(self, data):
-        res = CBE.execute(CBE.get_index, JPathNodeError(self, data), slice(self.start, self.end, self.step), data)
+        res = CBE.execute(CBE.get_sliced, JPathNodeError(self, data), slice(self.start, self.end, self.step), data)
         return [res] if hasattr(res, self.D_MOD) else res
 
     def __eq__(self, o):
@@ -414,15 +424,15 @@ class Recursive(object):
 
     @staticmethod
     def find_in_dict(data, field, result):
-        match = list(field.find(data))
+        match = field.find(data)
         if match:
             result.extend(match)
-        for value in data.values():
-            Recursive.find_recursive(value, field, result)
+        for key in data.keys():
+            Recursive.find_recursive(data[key], field, result)
 
     @staticmethod
     def find_in_list(data, field, result):
-        for value in data:
+        for value in list(data):
             Recursive.find_recursive(value, field, result)
 
 

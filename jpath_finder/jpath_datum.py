@@ -15,6 +15,8 @@ class Datum(object):
         self.template = template
 
     def __getitem__(self, item):
+        # if isinstance(item, slice):
+        #     return
         return self.__call__(self.value[item], item, self, INDEX_TEMPLATE)
 
     def __str__(self):
@@ -22,3 +24,10 @@ class Datum(object):
 
     def __call__(self, value, path, context, template):
         return Datum(value, path, context, template)
+
+    def __getattr__(self, item):
+        return getattr(self.value, item)
+
+    @property
+    def __class__(self):
+        return self.value.__class__

@@ -6,6 +6,7 @@ from ply.yacc import yacc
 
 from jpath_finder.jpath_errors import JPathError, JPathParseError
 from jpath_finder.jpath_lexer import JPathLexer
+from jpath_finder.jpath_datum import Datum
 from jpath_finder.jpath_nodes import (
     BINARY_OP_MAP,
     BOOLEAN_OPERATOR_MAP,
@@ -63,13 +64,11 @@ class JsonPathParser(object):
     def p_child(p):
         """json_path : json_path '.' json_path"""
         p[0] = Child(p[1], p[3])
-        print("1")
 
     @staticmethod
     def p_child_index(p):
         """json_path : json_path json_path """
         p[0] = Child(p[1], p[2])
-        print("2")
 
     @staticmethod
     def p_json_path_bin_op(p):
@@ -123,7 +122,6 @@ class JsonPathParser(object):
     @staticmethod
     def p_json_path_fields(p):
         """json_path : fields"""
-        print("3")
         p[0] = Fields(*p[1])
 
     @staticmethod
@@ -287,3 +285,25 @@ def find(path, data, logger=BasicLogger, debug=False):
             message = str(e)
             logger.debug(message)
         return []
+
+
+def find_datum(path, data, logger=BasicLogger, debug=False):
+    """
+    :param path: The string JsonPath to be parsed.
+    :param data: The json data generally a dictionary.
+    :param logger: Logger class with a debug method, like logger.debug(error_message).
+    :param debug: True if the logger's debug method will be called. default False.
+    :return: A list of datum like [datum_1, datum_2] where datum.value is the value found.
+    """
+    return find(path, Datum(data), logger, debug)
+
+
+def find_with_path(path, data, logger=BasicLogger, debug=False):
+    """
+    :param path: The string JsonPath to be parsed.
+    :param data: The json data generally a dictionary.
+    :param logger: Logger class with a debug method, like logger.debug(error_message).
+    :param debug: True if the logger's debug method will be called. default False.
+    :return: A list of tuples with the results found like [(path_1, value_1), (path_2, value_2)].
+    """
+    return [(str(datum), datum.value) for datum in find_datum(path, data, logger, debug)]

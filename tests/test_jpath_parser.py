@@ -17,7 +17,7 @@ from tests.parser_original_cases import (
 )
 from tests.parser_test_cases import PATH_CASES, STR_REPR_CASES
 from jpath_finder.jpath_errors import JPathNodeError, JPathError, JPathIndexError
-from jpath_finder.jpath_parser import BasicLogger, JsonPathParser, StaticParser, find, parse
+from jpath_finder.jpath_parser import BasicLogger, JsonPathParser, StaticParser, find, parse, find_with_path
 
 
 class TestJsonPathParser(TestCase):
@@ -92,12 +92,12 @@ class TestJsonPathParser(TestCase):
         self.assertEqual(self.find("$.data_6..list_items[name]"), ["jhon"])
         self.assertEqual(self.find("$.data_6[count]"), [1])
 
-    @pytest.mark.skipif(
-        sys.version_info < (3, 0), reason="Py2 return the dict values in other order"
-    )
-    def test_all_index(self):
-        with self.assertRaises(JPathIndexError):
-            self.find("$.data_6.list_items[*]")
+    # @pytest.mark.skipif(
+    #     sys.version_info < (3, 0), reason="Py2 return the dict values in other order"
+    # )
+    # def test_all_index(self):
+    #     with self.assertRaises(JPathIndexError):
+    #         self.find("$.data_6.list_items[*]")
 
     @pytest.mark.skipif(
         sys.version_info < (3, 0), reason="string unicode repr diff py2 and 3"
@@ -146,7 +146,7 @@ class TestJsonPathParser(TestCase):
         sys.version_info < (3, 0), reason="string unicode repr diff py2 and 3"
     )
     def test_multi_parse(self):
-        for path, result, parsed_str, parsed_repr in PATH_CASES:
+        for path, result, parsed_str, parsed_repr, _ in PATH_CASES:
             parsed = self._parser.parse(path)
             assert str(parsed) == parsed_str
             # assert repr(parsed) == parsed_repr
@@ -259,6 +259,11 @@ class TestBasicLogger(TestCase):
 
 
 class TestMethods(TestCase):
+    def setUp(self):
+        self._abs_path = os.path.abspath("tests/json_for_test.json")
+        self._file = open(self._abs_path, "r")
+        self._data = json.load(self._file)
+
     def test_parse_method(self):
         self.assertEqual(str(parse("name.value")), "name.value")
 
@@ -276,3 +281,8 @@ class TestMethods(TestCase):
         logger = MagicMock()
         self.assertEqual(find("[3]", [], logger=logger), [])
         logger.debug.assert_not_called()
+
+    def test_find_with_path(self):
+        for path, result, _, _, str_path in PATH_CASES:
+            expected = [(s_path, res) for s_path, res in zip(str_path, result)]
+            self.assertEqual(find_with_path(path, self._data), expected)
