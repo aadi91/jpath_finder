@@ -75,11 +75,6 @@ class JsonPathParser(object):
         """json_path : json_path binary_op json_path"""
         p[0] = BINARY_OP_MAP[p[2]](p[1], p[3])
 
-    # @staticmethod
-    # def p_json_path_index(p):
-    #     """json_path : index"""
-    #     p[0] = p[2]
-
     @staticmethod
     def p_index_expressions(p):
         """json_path : '[' '?' expressions ']'"""
@@ -148,10 +143,6 @@ class JsonPathParser(object):
     def p_all_index(p):
         """json_path : '[' '*' ']'"""
         p[0] = AllIndex()
-    #
-    # @staticmethod
-    # def p_all_index_dict(p):
-    #     """index : '[' '*' ']'"""
 
     @staticmethod
     def p_slice(p):

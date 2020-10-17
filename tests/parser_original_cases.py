@@ -1,15 +1,36 @@
 # json_path, result_expected
 SORTED_CASES = (
-    ("$.objects.`sorted`", [["alpha", "beta", "gamma"]]),
-    ("$.objects.`sorted`[1]", ["beta"]),
-    ("$.objects_2.`sorted`", [["cat", "cow", "horse"]]),
-    ("$.objects_2.`sorted`[0]", ["cat"]),
+    (
+        "$.objects.`sorted`",
+        [["alpha", "beta", "gamma"]]
+    ),
+    (
+        "$.objects.`sorted`[1]",
+        ["beta"]
+    ),
+    (
+        "$.objects_2.`sorted`",
+        [["cat", "cow", "horse"]]
+    ),
+    (
+        "$.objects_2.`sorted`[0]",
+        ["cat"]
+    ),
 )
 
 LEN_CASES = (
-    ("$.objects.`len`", [3]),
-    ("$.objects_2.`len`", [3]),
-    ("$.objects[0].`len`", [5]),
+    (
+        "$.objects.`len`",
+        [3]
+    ),
+    (
+        "$.objects_2.`len`",
+        [3]
+    ),
+    (
+        "$.objects[0].`len`",
+        [5]
+    ),
 )
 
 FILTER_CASES = (
@@ -17,8 +38,14 @@ FILTER_CASES = (
         "$.objects_4[?(@.cow>5)]",
         [{"cow": 8, "cat": 2}, {"cow": 7, "cat": 2}, {"cow": 8, "cat": 3}],
     ),
-    ("$.objects_4[?(@.cow>5 & @.cat=2)]", [{"cow": 8, "cat": 2}, {"cow": 7, "cat": 2}]),
-    ("$.objects_5[?(@.confidence>=0.5)].prediction", ["Bad"]),
+    (
+        "$.objects_4[?(@.cow>5 & @.cat=2)]",
+        [{"cow": 8, "cat": 2}, {"cow": 7, "cat": 2}]
+    ),
+    (
+        "$.objects_5[?(@.confidence>=0.5)].prediction",
+        ["Bad"]
+    ),
     (
         "$.objects_4[?(@.cow==8|@.cat==3)]",
         [{"cow": 8, "cat": 2}, {"cow": 5, "cat": 3}, {"cow": 8, "cat": 3}],
@@ -27,9 +54,18 @@ FILTER_CASES = (
         "$.objects_4[?(@.cow=8 & (@.cat=2 | @.cat=3))]",
         [{"cow": 8, "cat": 2}, {"cow": 8, "cat": 3}],
     ),
-    ("$.objects_4[?(@.dog=1|@.cat=3&@.cow=8)]", [{"cow": 8, "cat": 3}]),
-    ("$.objects_4[?(@.cow>5&@.cat=2)]", [{"cow": 8, "cat": 2}, {"cow": 7, "cat": 2}]),
-    ("$.items[?(@.quotas[*].limit<=21)].id", ["1000", "1001"]),
+    (
+        "$.objects_4[?(@.dog=1|@.cat=3&@.cow=8)]",
+        [{"cow": 8, "cat": 3}]
+    ),
+    (
+        "$.objects_4[?(@.cow>5&@.cat=2)]",
+        [{"cow": 8, "cat": 2}, {"cow": 7, "cat": 2}]
+    ),
+    (
+        "$.items[?(@.quotas[*].limit<=21)].id",
+        ["1000", "1001"]
+    ),
     (
         "$.items[?(@.quotas[*].metric='SSD' & @.quotas[*].usage>0) | "
         "(@.quotas[*].metric='CPU' & @.quotas[*].usage>0) | "

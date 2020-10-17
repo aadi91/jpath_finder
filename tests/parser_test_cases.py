@@ -287,24 +287,24 @@ PATH_CASES = (
         ['$[list_items_2][slice(None, None, None)][0]',
          '$[list_items_2][slice(None, None, None)][1]']
     ),
-    # (
-    #     "$.data_3.items.products[?(@.name=='dishes')].price",
-    #     [12],
-    #     "$.data_3.items.products.[?(@.name==dishes)].price",
-    #     "Child(Child(Child(Child(Child(Root(), Fields('data_3')), Fields('items')), "
-    #     "Fields('products')), Filter(Expression(target=Child(This(), "
-    #     "Fields('name')),op='==',value='dishes'))), Fields('price'))",
-    #     [""]
-    # ),
-    # (
-    #     "$.objects_4[?(@.cow>5 & @.cat==2)]",
-    #     [{"cow": 8, "cat": 2}, {"cow": 7, "cat": 2}],
-    #     "$.objects_4.[?(@.cow>5&@.cat==2)]",
-    #     "Child(Child(Root(), Fields('objects_4')), Filter(And("
-    #     "Expression(target=Child(This(), Fields('cow')),op='>',value=5),"
-    #     "Expression(target=Child(This(), Fields('cat')),op='==',value=2))))",
-    #     [""]
-    # ),
+    (
+        "$.data_3.items.products[?(@.name=='dishes')].price",
+        [12],
+        "$.data_3.items.products.[?(@.name==dishes)].price",
+        "Child(Child(Child(Child(Child(Root(), Fields('data_3')), Fields('items')), "
+        "Fields('products')), Filter(Expression(target=Child(This(), "
+        "Fields('name')),op='==',value='dishes'))), Fields('price'))",
+        ['$[data_3][items][products][0][price]']
+    ),
+    (
+        "$.objects_4[?(@.cow>5 & @.cat==2)]",
+        [{'cow': 8, 'cat': 2}, {'cow': 7, 'cat': 2}],
+        "$.objects_4.[?(@.cow>5&@.cat==2)]",
+        "Child(Child(Root(), Fields('objects_4')), Filter(And("
+        "Expression(target=Child(This(), Fields('cow')),op='>',value=5),"
+        "Expression(target=Child(This(), Fields('cat')),op='==',value=2))))",
+        ["$[objects_4][0]", "$[objects_4][1]"]
+    ),
 )
 
 STR_REPR_CASES = (

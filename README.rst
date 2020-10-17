@@ -10,9 +10,9 @@ This library was created based on the `<https://github.com/h2non/jsonpath-ng>` l
 
 The following changes were made in order to improve the execution time and decrease memory usage:
 
-- Refactor in the JsonPath classes.
-- The datum_in_context class was removed.
-- Add new functionality like slice, sum, avg, and, or.
+- Refactor all JsonPath classes.
+- Refactor datum_in_context class and called Datum.
+- Add new functionality like Slice, Sum, Avg, Or, `keys`, `values`.
 - The Parser and Lexer method's were changed to static methods.
 - Remove update and filter methods, this library just implement the find method.
 - Add new error classes.

@@ -369,6 +369,7 @@ class Expression(Leaf):
 
     STR = "{0}{1}{2}"
     REPR = "{0}(target={1!r},op={2!r},value={3!r})"
+    VALUE = "value"
 
     def __init__(self, target=None, op=None, value=None):
         self.target = target
@@ -377,6 +378,8 @@ class Expression(Leaf):
 
     def find(self, data):
         op = OPERATOR_MAP.get(self.op)
+        if hasattr(data, self.VALUE):
+            data = data.value
         found = self.target.find(data)
         if op is None:
             return True if found else False
