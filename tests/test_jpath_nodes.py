@@ -163,13 +163,6 @@ class TestChild(TestCase):
         self.assertEqual(find(child, dict()), [])
         self.assertEqual(find(child, {"other": 23}), [])
 
-    # def test_find_with_exception(self):
-    #     child = Child(Root(), Fields("value"))
-    #     cases = [dict(), {"other": 23}]
-    #     for case in cases:
-    #         with self.assertRaises(JPathNodeError):
-    #             find(child, case)
-
 
 class TestWhere(TestCase):
     def test_find(self):
@@ -286,16 +279,6 @@ class TestAllIndex(TestCase):
         list_ = ["value", 3, False, "true", -5]
         make_verification(self, AllIndex(), list_, list_)
         make_verification(self, AllIndex(), [], [])
-
-    # @pytest.mark.skipif(
-    #     sys.version_info < (3, 0), reason="Py2 return the dict values in other order"
-    # )
-    # def test_find_in_dict_with_exception(self):
-    #     dict_ = {"One": 1, 2: "Two", True: None}
-    #     cases = [dict_, {}]
-    #     for case in cases:
-    #         with self.assertRaises(JPathIndexError):
-    #             AllIndex().find(case)
 
     def test_find_exceptions(self):
         cases = (23, True, 23.3, None)

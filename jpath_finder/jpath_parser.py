@@ -155,15 +155,6 @@ class JsonPathParser(object):
 
     @staticmethod
     def p_json_path_mat_expression(p):
-        # """json_path : INTEGER operator INTEGER
-        #              | STRING operator INTEGER
-        #              | INTEGER operator STRING
-        #              | STRING operator STRING
-        #              | STRING operator json_path
-        #              | json_path operator STRING
-        #              | INTEGER operator json_path
-        #              | json_path operator json_path
-        #              | json_path operator INTEGER"""
         """json_path : jp_object operator json_path
                      | json_path operator jp_object
                      | jp_object operator jp_object"""

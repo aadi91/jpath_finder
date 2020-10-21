@@ -1,8 +1,5 @@
-import os
-import json
 from unittest import TestCase
 
-# import jpath_finder.jpath_errors as errors
 from jpath_finder.jpath_datum import Datum, ROOT
 
 
@@ -84,6 +81,3 @@ class TestBaseDatum(TestCase):
         cases = [int, list, float, bool, dict, tuple]
         for case in cases:
             assert isinstance(Datum(case()), case)
-
-    # def test_arithmetic_operators(self):
-    #     assert Datum(2) + Datum(2) == 4

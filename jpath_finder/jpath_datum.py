@@ -4,6 +4,8 @@ ROOT = "$"
 EMPTY = ""
 INDEX_TEMPLATE = "[{}]"
 EMPTY_TEMPLATE = "{}"
+KEYS = "keys"
+VALUES = "values"
 
 
 class Datum(object):
@@ -20,7 +22,7 @@ class Datum(object):
     def __str__(self):
         return EMPTY.join([str(self.context), self.template.format(self.path)])
 
-    def __call__(self, value, path, context, template):
+    def __call__(self, value, path, context, template=EMPTY_TEMPLATE):
         return Datum(value, path, context, template)
 
     def __getattr__(self, item):
@@ -29,3 +31,9 @@ class Datum(object):
     @property
     def __class__(self):
         return self.value.__class__
+
+    def keys(self):
+        return [self.__call__(v, v, self, INDEX_TEMPLATE) for v in self.value.keys()]
+
+    def values(self):
+        return [self.__call__(v, k, self, INDEX_TEMPLATE) for k, v in self.value.items()]
