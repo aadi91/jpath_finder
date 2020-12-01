@@ -4,7 +4,7 @@ import setuptools
 
 setuptools.setup(
     name='jpath-finder',
-    version='1.0.1',
+    version='1.0.2',
     description='An implementation of Json Path for python.',
     author='William Alvarez',
     author_email='alvarezpw@gmail.com',

@@ -430,8 +430,8 @@ class Recursive(object):
         match = field.find(data)
         if match:
             result.extend(match)
-        for key in data.keys():
-            Recursive.find_recursive(data[key], field, result)
+        for value in data.values():
+            Recursive.find_recursive(value, field, result)
 
     @staticmethod
     def find_in_list(data, field, result):

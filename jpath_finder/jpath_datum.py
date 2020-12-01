@@ -1,5 +1,3 @@
-BASE_DATUM = '0'
-ITER_DATUM = "1"
 ROOT = "$"
 EMPTY = ""
 INDEX_TEMPLATE = "[{}]"
@@ -25,15 +23,15 @@ class Datum(object):
     def __call__(self, value, path, context, template=EMPTY_TEMPLATE):
         return Datum(value, path, context, template)
 
-    def __getattr__(self, item):
-        return getattr(self.value, item)
-
     @property
     def __class__(self):
         return self.value.__class__
 
     def keys(self):
-        return [self.__call__(v, v, self, INDEX_TEMPLATE) for v in self.value.keys()]
+        return [self.__call__(k, k, self, INDEX_TEMPLATE) for k in self.value.keys()]
 
     def values(self):
         return [self.__call__(v, k, self, INDEX_TEMPLATE) for k, v in self.value.items()]
+
+    def __eq__(self, datum):
+        return self.value == datum.value

@@ -81,3 +81,25 @@ class TestBaseDatum(TestCase):
         cases = [int, list, float, bool, dict, tuple]
         for case in cases:
             assert isinstance(Datum(case()), case)
+
+    def test_equal(self):
+        cases = [int, list, float, bool, dict, tuple]
+        for case in cases:
+            assert Datum(case()) == Datum(case())
+
+    def test_keys(self):
+        self.assertEqual(Datum({"2": 2}).keys(), [Datum("2")])
+
+        dict_ = {"2": 3, True: 1, 45: []}
+        expected = [Datum("2"), Datum(True), Datum(45)]
+        self.assertEqual(Datum(dict_).keys(), expected)
+
+    def test_values(self):
+        self.assertEqual(Datum({"2": 2}).values(), [Datum(2)])
+
+        dict_ = {"2": 3, True: 1, 45: []}
+        expected = [Datum(3), Datum(1), Datum([])]
+        self.assertEqual(Datum(dict_).values(), expected)
+
+    def test_get_attr(self):
+        self.assertEqual(Datum({"23": 3})["23"], Datum(3))
