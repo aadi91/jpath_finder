@@ -1,3 +1,5 @@
+import sys
+import pytest
 from unittest import TestCase
 
 from jpath_finder.jpath_datum import Datum, ROOT
@@ -47,7 +49,7 @@ class TestBaseDatum(TestCase):
             datum = Datum(data)
             for index in self._indexes:
                 with self.assertRaises(Exception):
-                    datum[index]
+                    _ = datum[index]
 
     def test_str_list(self):
         datum = Datum(self._data_list)
@@ -82,11 +84,18 @@ class TestBaseDatum(TestCase):
         for case in cases:
             assert isinstance(Datum(case()), case)
 
+    @pytest.mark.skipif(sys.version_info < (3, 0), reason="python2 str have no __iter__")
+    def test_get_attribute(self):
+        cases = [list, tuple, dict, str]
+        for case in cases:
+            assert hasattr(Datum(case()), "__iter__")
+
     def test_equal(self):
         cases = [int, list, float, bool, dict, tuple]
         for case in cases:
             assert Datum(case()) == Datum(case())
 
+    @pytest.mark.skipif(sys.version_info < (3, 0), reason="python 2 list sorting")
     def test_keys(self):
         self.assertEqual(Datum({"2": 2}).keys(), [Datum("2")])
 
@@ -94,6 +103,7 @@ class TestBaseDatum(TestCase):
         expected = [Datum("2"), Datum(True), Datum(45)]
         self.assertEqual(Datum(dict_).keys(), expected)
 
+    @pytest.mark.skipif(sys.version_info < (3, 0), reason="python 2 list sorting")
     def test_values(self):
         self.assertEqual(Datum({"2": 2}).values(), [Datum(2)])
 

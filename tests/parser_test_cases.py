@@ -29,7 +29,7 @@ PATH_CASES = (
         "$.data.[0].attributes.body",
         "Child(Child(Child(Child(Root(), Fields('data')), "
         "Index(0)), Fields('attributes')), Fields('body'))",
-        ["$[data][0][attributes][body]",]
+        ["$[data][0][attributes][body]"]
     ),
     (
         "$.data[0].attributes.created",

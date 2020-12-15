@@ -17,7 +17,7 @@ from tests.parser_original_cases import (
 )
 from tests.parser_test_cases import PATH_CASES, STR_REPR_CASES
 from jpath_finder.jpath_errors import JPathNodeError, JPathError, JPathIndexError
-from jpath_finder.jpath_parser import BasicLogger, JsonPathParser, StaticParser, find, parse, find_with_path
+from jpath_finder.jpath_parser import BasicLogger, JsonPathParser, StaticParser, find, parse, find_datum
 
 
 class TestJsonPathParser(TestCase):
@@ -282,7 +282,8 @@ class TestMethods(TestCase):
         self.assertEqual(find("[3]", [], logger=logger), [])
         logger.debug.assert_not_called()
 
-    def test_find_with_path(self):
+    def test_find_datum(self):
         for path, result, _, _, str_path in PATH_CASES:
             expected = [(s_path, res) for s_path, res in zip(str_path, result)]
-            self.assertEqual(find_with_path(path, self._data), expected)
+            result = [(str(d), d.value) for d in find_datum(path, self._data)]
+            self.assertEqual(result, expected)

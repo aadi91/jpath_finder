@@ -23,9 +23,6 @@ from jpath_finder.jpath_nodes import (
 )
 
 
-logger = logging.getLogger(__name__)
-
-
 class JsonPathParser(object):
     """An LA-LR parser for JsonPath"""
 
@@ -34,8 +31,9 @@ class JsonPathParser(object):
     def __init__(self, debug=False):
         self._debug = debug
         self._lexer = JPathLexer(self._debug)
+        self.logger = logging.getLogger(__name__)
         self._parser = yacc(
-            module=self, debug=self._debug, errorlog=logger, write_tables=False
+            module=self, debug=self._debug, errorlog=self.logger, write_tables=False
         )
 
     def parse(self, string):
@@ -46,7 +44,6 @@ class JsonPathParser(object):
     precedence = [
         ("left", "+", "-"),
         ("left", "*", "/"),
-        # ("left", ),
         ("left", "."),
         ("left", "&", "|"),
         ("left", ","),
@@ -262,7 +259,7 @@ def find(path, data, logger=BasicLogger, debug=False):
     try:
         parsed = parse(path)
         return parsed.find(data)
-    except JPathError as e:
+    except (JPathError, Exception) as e:
         if debug:
             message = str(e)
             logger.debug(message)
@@ -278,14 +275,3 @@ def find_datum(path, data, logger=BasicLogger, debug=False):
     :return: A list of datum like [datum_1, datum_2] where datum.value is the value found.
     """
     return find(path, Datum(data), logger, debug)
-
-
-def find_with_path(path, data, logger=BasicLogger, debug=False):
-    """
-    :param path: The string JsonPath to be parsed.
-    :param data: The json data generally a dictionary.
-    :param logger: Logger class with a debug method, like logger.debug(error_message).
-    :param debug: True if the logger's debug method will be called. default False.
-    :return: A list of tuples with the results found like [(path_1, value_1), (path_2, value_2)].
-    """
-    return [(str(datum), datum.value) for datum in find_datum(path, data, logger, debug)]
