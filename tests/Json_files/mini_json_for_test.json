@@ -1,0 +1,555 @@
+{
+  "name": "data",
+  "data": [
+    {
+      "type": "articles",
+      "id": "1",
+      "attributes": {
+        "title": "JSON:API paints my bikeshed!",
+        "body": "The shortest article. Ever.",
+        "created": "2015-05-22T14:56:29.000Z",
+        "updated": "2015-05-22T14:56:28.000Z",
+        "info": {
+          "meta": {
+            "totalPages": 13
+          },
+          "data_2": [
+            {
+              "type": "articles",
+              "id": "3",
+              "attributes": {
+                "title": "JSON:API paints my bikeshed!",
+                "body": "The shortest article. Ever.",
+                "created": "2015-05-22T14:56:29.000Z",
+                "updated": "2015-05-22T14:56:28.000Z",
+                "others": {
+                  "errors": [
+                    {
+                      "status": "403",
+                      "source": {
+                        "pointer": "/data/attributes/secretPowers"
+                      },
+                      "detail": "Sundays."
+                    },
+                    {
+                      "status": "422",
+                      "source": {
+                        "pointer": "/data/attributes/volume"
+                      },
+                      "detail": "go to 11."
+                    },
+                    {
+                      "status": "500",
+                      "source": {
+                        "pointer": "/data/attributes/reputation"
+                      },
+                      "title": "The backend responded with an error",
+                      "detail": "after three requests."
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "links": {
+            "self": "http://example.com/articles?page[number]=3&page[size]=1",
+            "first": "http://example.com/articles?page[number]=1&page[size]=1",
+            "prev": "http://example.com/articles?page[number]=2&page[size]=1",
+            "next": "http://example.com/articles?page[number]=4&page[size]=1",
+            "last": "http://example.com/articles?page[number]=13&page[size]=1"
+          },
+          "other": {
+            "errors": [
+              {
+                "source": {
+                  "parameter": "include"
+                },
+                "title": "Invalid Query Parameter",
+                "detail": "The resource does not have an `author`."
+              }
+            ]
+          }
+        }
+      },
+      "relationships": {
+        "author": {
+          "data": {
+            "id": "42",
+            "type": "people"
+          }
+        }
+      }
+    }
+  ],
+  "included": [
+    {
+      "type": "people",
+      "id": 42,
+      "attributes": {
+        "name": "John",
+        "age": 80,
+        "gender": "male"
+      }
+    }
+  ],
+  "applications": {
+    "data": [
+      {
+        "type": "articles",
+        "id": "1",
+        "attributes": {
+          "title": "JSON:API paints my bikeshed!",
+          "body": "The shortest article. Ever."
+        },
+        "relationships": {
+          "author": {
+            "data": {
+              "id": "42",
+              "type": "people"
+            }
+          }
+        }
+      }
+    ],
+    "included": [
+      {
+        "type": "people",
+        "id": "42",
+        "attributes": {
+          "name": "John"
+        }
+      }
+    ]
+  },
+  "list_items": [
+    "item_1",
+    "item_2",
+    "item_3",
+    "item_4",
+    "item_5",
+    "item_6",
+    "item_7",
+    "item_8"
+  ],
+  "list_items_2": [
+    "item_1",
+    "item_2"
+  ],
+  "data_1": {
+    "names": [
+      {
+        "name": "carlos"
+      },
+      {
+        "name": "pepe"
+      }
+    ]
+  },
+  "data_2": {
+    "name": "jhon",
+    "age": 23,
+    "genre": "male"
+  },
+  "data_3": {
+    "items": {
+      "products": [
+        {
+          "name": "dishes",
+          "price": 12
+        },
+        {
+          "name": "spon",
+          "price": 32
+        }
+      ],
+      "machines": [
+        {
+          "name": "moto",
+          "cost": 34.4
+        },
+        {
+          "name": "truch",
+          "cost": 1000
+        }
+      ],
+      "id": 1234,
+      "id_str": "12345"
+    }
+  },
+  "data_4": {
+    "list_items": [
+      "item_1",
+      "item_2",
+      "item_3",
+      "item_4",
+      "item_5",
+      "item_6",
+      "item_7",
+      "item_8"
+    ],
+    "machines": {
+      "cpu": [
+        2,
+        6,
+        11
+      ],
+      "ram": [
+        3.43,
+        6,
+        2.2
+      ],
+      "name": [
+        "Linux",
+        "Windows",
+        "Unix"
+      ]
+    }
+  },
+  "data_5": {
+    "virtual_machines": [
+      {
+        "cpu": 2,
+        "name": "Linux",
+        "ram": 3.43
+      },
+      {
+        "cpu": 4,
+        "name": "Windows",
+        "ram": 6
+      },
+      {
+        "cpu": 11,
+        "name": "Unix",
+        "ram": 2.2
+      }
+    ]
+  },
+  "data_6": {
+    "list_items": {
+      "name": "jhon",
+      "last_name": "wick"
+    },
+    "count": 1
+  },
+  "data_7": {
+    "list_items": {
+      "name": "jhon",
+      "last_name": "wick",
+      "age": 34,
+      "genre": "male",
+      "live": true
+    }
+  },
+  "objects": [
+    "alpha",
+    "gamma",
+    "beta"
+  ],
+  "objects_2": {
+    "cow": "moo",
+    "horse": "neigh",
+    "cat": "meow"
+  },
+  "objects_3": [
+    {
+      "cow": "moo"
+    },
+    {
+      "cat": "neigh"
+    },
+    {
+      "cow!?cat": "moo"
+    },
+    {
+      "cow": "neigh"
+    }
+  ],
+  "objects_4": [
+    {
+      "cow": 8,
+      "cat": 2
+    },
+    {
+      "cow": 7,
+      "cat": 2
+    },
+    {
+      "cow": 2,
+      "cat": 2
+    },
+    {
+      "cow": 5,
+      "cat": 3
+    },
+    {
+      "cow": 8,
+      "cat": 3
+    }
+  ],
+  "objects_5": [
+    {
+      "confidence": 0.42,
+      "prediction": "Good"
+    },
+    {
+      "confidence": 0.58,
+      "prediction": "Bad"
+    }
+  ],
+  "objects_6": [
+    {
+      "cat": 1,
+      "cow": 2
+    },
+    {
+      "cat": 2,
+      "cow": 1
+    },
+    {
+      "cat": 3,
+      "cow": 3
+    }
+  ],
+  "objects_7": [
+    {
+      "cat": 2
+    },
+    {
+      "cat": 1
+    },
+    {
+      "cat": 3
+    }
+  ],
+  "objects_8": [
+    {
+      "cat": {
+        "dog": 1,
+        "cow": 2
+      }
+    },
+    {
+      "cat": {
+        "dog": 2,
+        "cow": 1
+      }
+    },
+    {
+      "cat": {
+        "dog": 3,
+        "cow": 3
+      }
+    }
+  ],
+  "items": [
+    {
+      "status": "UP",
+      "kind": "compute#region",
+      "description": "us-central1",
+      "quotas": [
+        {
+          "usage": 3.0,
+          "metric": "CPUS",
+          "limit": 72.0
+        },
+        {
+          "usage": 261.0,
+          "metric": "DISKS",
+          "limit": 40960.0
+        },
+        {
+          "usage": 0.0,
+          "metric": "STATIC",
+          "limit": 21.0
+        },
+        {
+          "usage": 0.0,
+          "metric": "IN_USE",
+          "limit": 69.0
+        },
+        {
+          "usage": 0.0,
+          "metric": "SSD",
+          "limit": 20480.0
+        }
+      ],
+      "id": "1000",
+      "name": "us-central1"
+    },
+    {
+      "status": "UP",
+      "kind": "compute#region",
+      "description": "us-central2",
+      "quotas": [
+        {
+          "usage": 0.0,
+          "metric": "CPUS",
+          "limit": 72.0
+        },
+        {
+          "usage": 0.0,
+          "metric": "DISKS",
+          "limit": 40960.0
+        },
+        {
+          "usage": 0.0,
+          "metric": "STATIC",
+          "limit": 21.0
+        },
+        {
+          "usage": 0.0,
+          "metric": "IN_USE",
+          "limit": 69.0
+        },
+        {
+          "usage": 0.0,
+          "metric": "SSD",
+          "limit": 20480.0
+        }
+      ],
+      "id": "1001",
+      "name": "us-central2"
+    },
+    {
+      "status": "UP",
+      "kind": "compute#region",
+      "description": "us-central3",
+      "quotas": [
+        {
+          "usage": 0.0,
+          "metric": "CPUS",
+          "limit": 90.0
+        },
+        {
+          "usage": 0.0,
+          "metric": "DISKS",
+          "limit": 2040.0
+        },
+        {
+          "usage": 0.0,
+          "metric": "STATIC",
+          "limit": 46.0
+        },
+        {
+          "usage": 0.0,
+          "metric": "IN_USE",
+          "limit": 80.0
+        },
+        {
+          "usage": 500.0,
+          "metric": "SSD",
+          "limit": 20480.0
+        }
+      ],
+      "id": "1002",
+      "name": "us-central3"
+    }
+  ],
+  "payload": {
+    "metrics": [
+      {
+        "id": 1,
+        "timestamp": "2013-07-29T06:51:34.472416",
+        "name": "cpu.frequency",
+        "value": 1600,
+        "source": "libvirt.LibvirtDriver"
+      },
+      {
+        "id": 2,
+        "timestamp": "2013-07-29T06:51:34.472416",
+        "name": "cpu.user.time",
+        "value": 17421440000000,
+        "source": "libvirt.LibvirtDriver"
+      }
+    ]
+  },
+  "large_data": [
+    {
+      "isActive": false,
+      "vms": [
+        {
+          "vm_name": "Machine_0",
+          "cores": 3,
+          "countries": [
+            {
+              "country_name": "Puerto Rico",
+              "quantity": 28
+            }
+          ]
+        },
+        {
+          "vm_name": "Machine_1",
+          "cores": 1,
+          "countries": [
+            {
+              "country_name": "Alaska",
+              "quantity": 38
+            },
+            {
+              "country_name": "Rhode Island",
+              "quantity": 22
+            }
+          ]
+        },
+        {
+          "vm_name": "Machine_2",
+          "cores": 4,
+          "countries": [
+            {
+              "country_name": "Arizona",
+              "quantity": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "isActive": false,
+      "vms": [
+        {
+          "vm_name": "Machine_0",
+          "cores": 2,
+          "countries": [
+            {
+              "country_name": "Louisiana",
+              "quantity": 39
+            },
+            {
+              "country_name": "Guam",
+              "quantity": 28
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "isActive": true,
+      "vms": [
+        {
+          "vm_name": "Machine_0",
+          "cores": 1,
+          "countries": [
+            {
+              "country_name": "Palau",
+              "quantity": 39
+            }
+          ]
+        },
+        {
+          "vm_name": "Machine_1",
+          "cores": 4,
+          "countries": [
+            {
+              "country_name": "Maine",
+              "quantity": 37
+            },
+            {
+              "country_name": "American Samoa",
+              "quantity": 40
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
